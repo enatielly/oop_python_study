@@ -1,0 +1,7 @@
+pandas>=2.0
+numpy==2.5.3  # fixado (nao so um piso): garante que gerar_dataset.py produza
+              # o mesmo CSV byte a byte em qualquer maquina, dado que a seed
+              # e fixa (42) e o gerador PCG64 do numpy depende da versao exata
+scikit-learn>=1.4
+xgboost>=2.0
+pytest>=8.0

@@ -94,8 +94,8 @@ class ModeloClassificacao(ABC):
 class ModeloXGBoost(ModeloClassificacao):
     """
     Usa scale_pos_weight para lidar com o desbalanceamento da classe
-    (poucos inadimplentes) -- a mesma técnica que vale mencionar em
-    entrevista quando perguntarem "o que fazer com variável desbalanceada".
+    (dias de mar perigoso são raros) -- a mesma técnica que vale mencionar
+    em entrevista quando perguntarem "o que fazer com variável desbalanceada".
     """
 
     def __init__(self, nome: str = "XGBoost", **kwargs) -> None:

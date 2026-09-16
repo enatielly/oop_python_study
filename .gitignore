@@ -4,4 +4,4 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
-caso2_classificacao_credito/data/*.csv
+caso2_risco_maritimo/data/*.csv

@@ -18,12 +18,12 @@ def dataset_pequeno():
     n = 300
     X = pd.DataFrame(
         {
-            "idade": rng.integers(18, 70, n),
-            "renda_mensal": rng.gamma(4, 800, n),
-            "historico_credito": rng.choice(["bom", "regular", "ruim"], n),
+            "velocidade_vento": rng.gamma(2.0, 4.0, n),
+            "altura_onda": rng.gamma(2.0, 0.6, n),
+            "estacao_do_ano": rng.choice(["verao", "outono", "inverno", "primavera"], n),
         }
     )
-    y = pd.Series(rng.choice([0, 1], n, p=[0.8, 0.2]), name="inadimplente")
+    y = pd.Series(rng.choice([0, 1], n, p=[0.8, 0.2]), name="condicao_perigosa")
     return train_test_split(X, y, test_size=0.3, stratify=y, random_state=0)
 
 

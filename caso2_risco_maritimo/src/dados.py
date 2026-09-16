@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-COLUNA_ALVO = "inadimplente"
+COLUNA_ALVO = "condicao_perigosa"
 
 
 class CarregadorDados:
@@ -33,5 +33,5 @@ class CarregadorDados:
     def dataset_padrao(cls) -> "CarregadorDados":
         """@classmethod: construtor alternativo apontando pro CSV padrão do
         projeto, sem quem chama precisar saber o caminho de cor."""
-        caminho_padrao = Path(__file__).resolve().parents[1] / "data" / "credito_sintetico.csv"
+        caminho_padrao = Path(__file__).resolve().parents[1] / "data" / "condicao_mar_sintetico.csv"
         return cls(caminho_padrao)

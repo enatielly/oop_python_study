@@ -1,12 +1,12 @@
 """
-Caso 2 - POO aplicada a um problema de classificação (risco de crédito)
-=========================================================================
+Caso 2 - POO aplicada a um problema de classificação (risco de mar agitado/ressaca)
+=====================================================================================
 
 Executa o pipeline completo: carrega dados -> pré-processa -> treina e
 compara 3 modelos (XGBoost, Random Forest, Regressão Logística) através da
 mesma interface polimórfica -> imprime a tabela comparativa.
 
-Rode com: python src/pipeline.py  (a partir da pasta caso2_classificacao_credito)
+Rode com: python src/pipeline.py  (a partir da pasta caso2_risco_maritimo)
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def executar_pipeline() -> None:
     tabela = comparador.rodar(X_treino_proc, y_treino, X_teste_proc, y_teste)
 
     print(f"Treino: {X_treino.shape[0]} amostras | Teste: {X_teste.shape[0]} amostras")
-    print(f"Proporção de inadimplentes no treino: {y_treino.mean():.1%}\n")
+    print(f"Proporção de condições perigosas no treino: {y_treino.mean():.1%}\n")
     print(tabela.to_string(index=False))
 
 
