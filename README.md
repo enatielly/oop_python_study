@@ -31,7 +31,6 @@ Dois casos práticos, do mais simples ao mais próximo de um cenário real:
 |---|---|
 | [`caso1_simples/`](./caso1_simples) | Rede de monitoramento oceanográfico — POO pura, sem dependências externas. |
 | [`caso2_risco_maritimo/`](./caso2_risco_maritimo) | Classificação de risco de mar agitado/ressaca — POO aplicada a um pipeline de Machine Learning (pandas/scikit-learn/XGBoost). |
-| [`assets/`](./assets) | Mapa mental dos quatro pilares (imagem + fonte do sketch). |
 | [`blog/`](./blog) | Rascunho de um post explicando o Caso 1 em mais detalhe (ainda não publicado). |
 
 ## Caso 1 — Rede de Monitoramento Oceanográfico

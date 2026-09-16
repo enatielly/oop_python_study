@@ -1,4 +1,3 @@
 # Arquivos que nao sao o "codigo-fonte" do projeto (sao artefatos visuais/
 # de documentacao), excluidos das estatisticas de linguagem do GitHub.
-assets/mindmap_source/oop_mindmap_sketch.html linguist-generated=true
 blog/*.html linguist-documentation=true
