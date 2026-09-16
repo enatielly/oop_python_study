@@ -22,7 +22,6 @@ Dois casos práticos, do mais simples ao mais próximo de um cenário real:
 - [Estrutura do repositório](#estrutura-do-repositório)
 - [Caso 1 — Rede de Monitoramento Oceanográfico](#caso-1--rede-de-monitoramento-oceanográfico)
 - [Caso 2 — Risco de Mar Agitado e Ressaca](#caso-2--risco-de-mar-agitado-e-ressaca)
-- [Mapa mental](#mapa-mental)
 - [Referência usada para revisar os artefatos](#referência-usada-para-revisar-os-artefatos)
 - [Autoria](#autoria)
 
@@ -109,10 +108,6 @@ python data/gerar_dataset.py                # gera o dataset sintético (reprodu
 python src/pipeline.py                      # roda o pipeline completo
 python -m pytest tests/ -v                  # 7 testes
 ```
-
-## Mapa mental
-
-![Mapa mental de Orientação a Objetos](./assets/mapa_mental_poo.png)
 
 ## Referência usada para revisar os artefatos
 
