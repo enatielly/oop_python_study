@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POO na Prática: Rede de Monitoramento Oceanográfico em Python</title>
+<meta name="description" content="Um estudo de caso de Orientação a Objetos em Python: os quatro pilares aplicados a uma rede de monitoramento oceanográfico real, sem nenhuma biblioteca externa — só POO pura.">
+<meta name="author" content="Enatielly Goes">
+
+<!-- Open Graph / preview de link (LinkedIn, Twitter, etc.) -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="POO na Prática: Rede de Monitoramento Oceanográfico em Python">
+<meta property="og:description" content="Os quatro pilares da Orientação a Objetos aplicados a um domínio real — oceanografia — sem nenhuma biblioteca externa.">
+<!-- TODO (Enatielly): depois de publicar, troque a linha abaixo pela URL absoluta
+     da página (ex.: https://enatielly.github.io/poo-fundamentos-...html) e, se
+     quiser uma imagem de capa no preview do LinkedIn, aponte og:image para uma
+     URL absoluta (ex.: a do mapa mental já hospedado no seu GitHub Pages). -->
+<meta property="og:url" content="https://enatielly.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Realce de sintaxe (highlight.js, só a gramática Python) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+<style>
+  :root {
+    --paper: #f6f8f7;
+    --paper-raised: #ffffff;
+    --ink: #15242b;
+    --ink-soft: #4a5c63;
+    --ink-faint: #7c8b90;
+    --line: #dbe3e2;
+    --accent: #0f7ea8;
+    --accent-deep: #0a5875;
+    --accent-soft: #e3f1f5;
+    --coral: #b95a38;
+    --coral-soft: #f7e7e0;
+    --code-bg: #0d2129;
+    --code-ink: #dce9ea;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #10191c;
+      --paper-raised: #162326;
+      --ink: #e8eef0;
+      --ink-soft: #b7c4c7;
+      --ink-faint: #8a999d;
+      --line: #26363a;
+      --accent: #57bfe3;
+      --accent-deep: #8ad4ee;
+      --accent-soft: #16323b;
+      --coral: #e08a68;
+      --coral-soft: #2c2019;
+      --code-bg: #0a1519;
+      --code-ink: #d7e6e8;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 19px;
+    line-height: 1.68;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent-deep); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  img { max-width: 100%; display: block; }
+
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 700; text-wrap: balance; color: var(--ink); }
+
+  .wrap { max-width: 700px; margin: 0 auto; padding: 0 24px; }
+  .wrap-wide { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------------------------------------------------------------- header */
+  header.hero {
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 18px;
+  }
+
+  h1.title {
+    font-size: clamp(2.1rem, 5vw, 3.15rem);
+    line-height: 1.12;
+    margin: 0 0 20px;
+    letter-spacing: -0.01em;
+  }
+
+  p.deck {
+    font-family: var(--font-body);
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    max-width: 620px;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--ink-faint);
+  }
+
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .byline strong { color: var(--ink); font-weight: 600; font-family: var(--font-body); font-size: 15px; }
+  .byline .dot::before { content: "·"; margin: 0 2px; }
+
+  /* ---------------------------------------------------------------- article */
+  article { padding: 44px 0 0; }
+
+  article > .wrap > p, article > .wrap > ul, article > .wrap > ol {
+    margin: 0 0 26px;
+  }
+
+  p.lede {
+    font-size: 21px;
+    line-height: 1.62;
+    color: var(--ink);
+  }
+  p.lede::first-letter {
+    font-family: var(--font-display);
+    font-size: 3.4em;
+    font-weight: 700;
+    float: left;
+    line-height: 0.86;
+    padding: 0.03em 0.09em 0 0;
+    color: var(--accent-deep);
+  }
+
+  h2.section {
+    font-size: 1.85rem;
+    margin: 56px 0 20px;
+    padding-top: 4px;
+  }
+
+  h3.pillar-title {
+    font-size: 1.35rem;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .pillar-num {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--paper-raised);
+    background: var(--accent);
+    border-radius: 999px;
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transform: translateY(-2px);
+  }
+
+  section.pillar {
+    margin: 44px 0;
+    padding: 28px 26px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+
+  section.pillar > p:last-of-type,
+  section.pillar > .snippet:last-child { margin-bottom: 0; }
+
+  code.inline {
+    font-family: var(--font-mono);
+    font-size: 0.87em;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    padding: 0.12em 0.4em;
+    border-radius: 5px;
+  }
+
+  blockquote.pull {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.55rem;
+    line-height: 1.42;
+    color: var(--ink);
+    margin: 40px 0;
+    padding: 4px 0 4px 26px;
+    border-left: 3px solid var(--coral);
+  }
+  blockquote.pull cite {
+    display: block;
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+
+  /* ---------------------------------------------------------------- code */
+  .snippet {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .snippet-label {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--code-ink);
+    opacity: 0.65;
+    background: var(--code-bg);
+    padding: 9px 16px 0;
+    letter-spacing: 0.02em;
+  }
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    padding: 14px 18px 18px;
+    overflow-x: auto;
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    line-height: 1.62;
+    color: var(--code-ink);
+  }
+
+  .hljs-keyword, .hljs-title.class_.inherited__ { color: #7fc8e3; }
+  .hljs-title.function_, .hljs-title.class_ { color: #8fd6b0; font-weight: 600; }
+  .hljs-string, .hljs-doctag { color: #e0b088; }
+  .hljs-comment { color: #6f8890; font-style: italic; }
+  .hljs-decorator, .hljs-meta { color: #e8a6c9; }
+  .hljs-number, .hljs-literal { color: #d6c374; }
+  .hljs-built_in, .hljs-title { color: #9fd6e8; }
+  .hljs-params { color: var(--code-ink); }
+
+  pre.terminal { border-radius: 12px; border: 1px solid var(--line); }
+  pre.terminal code { color: #a9e4c4; }
+  pre.terminal .prompt { color: #6f8890; }
+
+  /* ---------------------------------------------------------------- diagram */
+  figure.diagram {
+    margin: 40px 0;
+    padding: 0;
+  }
+  figure.diagram svg {
+    width: 100%;
+    height: auto;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  figcaption {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* ---------------------------------------------------------------- peculiaridades grid */
+  .peculiar-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin: 28px 0;
+  }
+  .peculiar-item {
+    padding: 18px 20px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .peculiar-item h4 {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--coral);
+    margin: 0 0 8px;
+    text-transform: none;
+  }
+  .peculiar-item p { margin: 0 0 10px; font-size: 17px; line-height: 1.55; color: var(--ink-soft); }
+  .peculiar-item pre { padding: 10px 14px; }
+  .peculiar-item code { font-size: 13.5px; }
+
+  /* ---------------------------------------------------------------- misc */
+  ul.plain, ol.plain { padding-left: 1.3em; }
+  ul.plain li, ol.plain li { margin-bottom: 10px; line-height: 1.6; }
+
+  hr.rule {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 56px 0;
+  }
+
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin: 28px 0;
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+  .callout strong { color: var(--ink); }
+
+  .mindmap-figure img {
+    border-radius: 12px;
+    border: 1px solid var(--line);
+  }
+
+  footer.colophon {
+    margin-top: 64px;
+    padding: 40px 0 72px;
+    border-top: 1px solid var(--line);
+  }
+  .author-card {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .author-card .avatar { width: 52px; height: 52px; font-size: 19px; }
+  .author-card h4 { margin: 0 0 6px; font-family: var(--font-body); font-size: 18px; font-weight: 700; }
+  .author-card p { margin: 0 0 12px; color: var(--ink-soft); font-size: 16px; line-height: 1.55; }
+  .author-links { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 14px; }
+
+  .series-note {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 560px) {
+    body { font-size: 17.5px; }
+    header.hero { padding: 48px 0 32px; }
+    p.deck { font-size: 18px; }
+    section.pillar { padding: 22px 18px; }
+    blockquote.pull { font-size: 1.3rem; padding-left: 18px; }
+    .author-card { flex-direction: column; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Estudo de POO em Python</p>
+    <h1 class="title">Uma rede de monitoramento oceanográfico me ensinou os quatro pilares da POO</h1>
+    <p class="deck">Nada de <code class="inline">Animal</code> e <code class="inline">Cachorro</code>. Peguei o domínio que eu já entendo de verdade — oceanografia — e usei ele pra estudar Orientação a Objetos do jeito que gruda: encapsulamento, abstração, herança e polimorfismo, sem nenhuma biblioteca externa.</p>
+    <div class="byline">
+      <div class="avatar">EG</div>
+      <div>
+        <strong>Enatielly Goes</strong><br>
+        <span>Oceanógrafa · doutoranda em Ciência da Computação</span>
+      </div>
+      <span class="dot"></span>
+      <span>1 set 2026</span>
+      <span class="dot"></span>
+      <span>leitura de ~8 min</span>
+    </div>
+  </div>
+</header>
+
+<article>
+  <div class="wrap">
+
+    <p class="lede">Prometi a mim mesma estudar Orientação a Objetos de um jeito que realmente ficasse — não decorando definição de classe e objeto, mas resolvendo um problema de design que eu reconheço. Este é um estudo de caso que venho documentando: fico só nos fundamentos, em Python puro, sem <code class="inline">scikit-learn</code>, sem <code class="inline">pandas</code>, nada. Só POO.</p>
+
+    <h2 class="section">Antes do case: os quatro pilares, em geral</h2>
+
+    <blockquote class="pull">Como diz Lutz logo na abertura do capítulo sobre classes: "classes make it easy to write new programs by customizing existing code" — em vez de reescrever, você reaproveita.<cite>— Learning Python, cap. 26, "OOP: The Big Picture" (p. 649)</cite></blockquote>
+
+    <p>O próprio livro reconhece que isso pede planejamento prévio — por isso interessa mais a quem pensa em construção de produto a longo prazo do que a quem só precisa entregar algo rápido, sem tempo de sobra. A promessa, quando bem aplicada, é que classes "can actually cut development time radically" (Learning Python, p. 649) — e é exatamente esse tipo de investimento de longo prazo que este estudo tenta documentar.</p>
+
+    <p>Antes de entrar na rede de estações, vale alinhar o vocabulário — não como peculiaridade do Python, mas como os quatro pilares que qualquer linguagem orientada a objetos (Java, C++, Python, o que for) implementa à sua maneira. As citações de página abaixo são do livro que uso como referência neste estudo, <em>Learning Python: Powerful Object-Oriented Programming</em> (Mark Lutz &amp; David Ascher, 6ª ed., O'Reilly), Parte VI — "Classes and OOP".</p>
+
+    <figure class="diagram mindmap-figure">
+      <img src="./assets/mapa-mental-4-pilares.png" alt="Mapa mental generalista dos quatro pilares da Orientação a Objetos — Abstração (expor só o que importa), Encapsulamento (agrupar dado e comportamento, proteger o estado interno), Herança (reaproveitar e especializar) e Polimorfismo (objetos diferentes respondendo à mesma chamada, cada um do seu jeito) — todos convergindo para o mecanismo central que os une em Python: a busca de atributo por trás da expressão object.attribute. Cada pilar com citação de página do livro Learning Python.">
+      <figcaption>Os quatro pilares de POO de forma independente de linguagem, girando em torno do mecanismo que os une em Python — a busca de atributo por trás de object.attribute — antes de ver como cada um aparece na rede de monitoramento.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Um adendo sobre o número "quatro"</strong>: as citações de Polimorfismo e Encapsulamento no mapa acima vêm de uma passagem específica do livro (cap. 31, "Python and OOP", p. 779) em que o próprio Lutz resume a implementação de POO em Python em <strong>três</strong> ideias — herança, polimorfismo e encapsulamento — sem listar abstração como um item separado. Isso não invalida os quatro pilares usados aqui (é a convenção didática mais comum, e abstração continua sendo uma ideia central para projetar a interface de uma classe); é só uma nuance que vale guardar — dependendo da fonte, você vai ver POO resumida em três ou quatro conceitos.
+    </div>
+
+    <p>Com esse vocabulário geral em mãos, o restante do artigo mostra como cada um desses pilares aparece — concretamente, em código — no caso da rede de monitoramento oceanográfico.</p>
+
+    <h2 class="section">O problema: quatro estações, uma interface</h2>
+
+    <p>Imagine uma rede de monitoramento com quatro tipos de estação bem diferentes entre si: uma <strong>boia</strong> fundeada em alto mar, uma <strong>estação costeira</strong> fixa em terra, uma <strong>estação submersa</strong> no fundo do oceano, e um <strong>sensor amador</strong> mantido por um voluntário — sem nenhum vínculo oficial com a rede. Cada uma mede uma grandeza diferente (temperatura, vento, pressão), tem atributos próprios, e nem todas nasceram dentro da mesma hierarquia de classes.</p>
+
+    <p>Mas a rede como um todo precisa tratar todas elas do mesmo jeito: pedir uma leitura, sem se importar com o que está por trás. Esse é exatamente o tipo de problema que a Orientação a Objetos resolve bem — e é o fio condutor deste case.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="Diagrama mostrando a classe abstrata EstacaoMonitoramento no topo, com BoiaOceanografica, EstacaoCosteira e EstacaoSubmersa herdando dela; um SensorCidadaoCientista separado, sem herança, ligado por duck typing; e todos os quatro convergindo para RedeDeMonitoramento.coletar_todas().">
+        <defs>
+          <marker id="arH" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M1,1 L9,5 L1,9" fill="none" stroke="#3a4d54" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M1,1 L9,5 L1,9" fill="none" stroke="#0f7ea8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M1,1 L9,5 L1,9" fill="none" stroke="#b95a38" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- ABC -->
+        <rect x="330" y="20" width="240" height="58" rx="10" fill="none" stroke="#3a4d54" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="450" y="44" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="14.5" font-weight="600" fill="#15242b">EstacaoMonitoramento</text>
+        <text x="450" y="64" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11.5" fill="#6f7f85">ABC · coletar_leitura() é abstrato</text>
+
+        <!-- herdeiros -->
+        <rect x="30" y="150" width="210" height="78" rx="10" fill="none" stroke="#15242b" stroke-width="2"/>
+        <text x="135" y="182" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="13.5" font-weight="600" fill="#15242b">BoiaOceanografica</text>
+        <text x="135" y="202" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11.5" fill="#6f7f85">mede temperatura</text>
+
+        <rect x="345" y="150" width="210" height="78" rx="10" fill="none" stroke="#15242b" stroke-width="2"/>
+        <text x="450" y="182" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="13.5" font-weight="600" fill="#15242b">EstacaoCosteira</text>
+        <text x="450" y="202" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11.5" fill="#6f7f85">mede vento</text>
+
+        <rect x="660" y="150" width="210" height="78" rx="10" fill="none" stroke="#15242b" stroke-width="2"/>
+        <text x="765" y="182" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="13.5" font-weight="600" fill="#15242b">EstacaoSubmersa</text>
+        <text x="765" y="202" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11.5" fill="#6f7f85">mede pressão</text>
+
+        <!-- herda: subclasses -> ABC -->
+        <path d="M135,150 C135,110 300,90 388,79" fill="none" stroke="#3a4d54" stroke-width="1.8" marker-end="url(#arH)"/>
+        <path d="M450,150 L450,80" fill="none" stroke="#3a4d54" stroke-width="1.8" marker-end="url(#arH)"/>
+        <path d="M765,150 C765,110 600,90 512,79" fill="none" stroke="#3a4d54" stroke-width="1.8" marker-end="url(#arH)"/>
+        <text x="450" y="112" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#3a4d54">herda ("is-a")</text>
+
+        <!-- herdeiros -> hub -->
+        <path d="M135,228 C135,300 300,340 372,406" fill="none" stroke="#0f7ea8" stroke-width="2" marker-end="url(#arA)"/>
+        <path d="M450,228 L450,398" fill="none" stroke="#0f7ea8" stroke-width="2" marker-end="url(#arA)"/>
+        <path d="M765,228 C765,300 600,340 528,406" fill="none" stroke="#0f7ea8" stroke-width="2" marker-end="url(#arA)"/>
+
+        <!-- sensor -->
+        <rect x="20" y="400" width="230" height="64" rx="10" fill="none" stroke="#b95a38" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="135" y="426" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="12.5" font-weight="600" fill="#b95a38">SensorCidadaoCientista</text>
+        <text x="135" y="445" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9.5" fill="#b95a38">não herda de EstacaoMonitoramento</text>
+
+        <!-- hub -->
+        <rect x="330" y="400" width="240" height="64" rx="10" fill="#0d2129" stroke="#0d2129" stroke-width="2"/>
+        <text x="450" y="428" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="13.5" font-weight="600" fill="#dce9ea">RedeDeMonitoramento</text>
+        <text x="450" y="447" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10.5" fill="#8fb0b8">.coletar_todas()</text>
+
+        <!-- sensor -> hub -->
+        <path d="M250,432 L322,432" fill="none" stroke="#b95a38" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arC)"/>
+        <text x="281" y="418" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10.5" fill="#b95a38">duck typing</text>
+      </svg>
+      <figcaption>As três primeiras herdam o contrato de <code class="inline">EstacaoMonitoramento</code>. O sensor amador não herda nada — só tem os métodos certos, e isso já basta pra entrar na rede.</figcaption>
+    </figure>
+
+    <h2 class="section">Os quatro pilares, no código</h2>
+
+    <section class="pillar">
+      <h3 class="pillar-title"><span class="pillar-num">1</span> Abstração</h3>
+      <p>A classe base <code class="inline">EstacaoMonitoramento</code> declara <em>o que</em> toda estação faz — nunca <em>como</em>. <code class="inline">coletar_leitura()</code> é um contrato: <code class="inline">ABC</code> + <code class="inline">@abstractmethod</code> impedem que eu instancie a classe base diretamente, ou que eu crie uma subclasse e esqueça de implementar o método. O design trava antes mesmo dos testes rodarem.</p>
+      <div class="snippet">
+        <div class="snippet-label">monitoramento_oceanografico.py</div>
+        <pre><code class="language-python">class EstacaoMonitoramento(ABC):
+    """Classe base abstrata para qualquer estação da rede."""
+
+    def __init__(
+        self, nome: str, latitude: float, longitude: float
+    ) -> None:
+        self.nome = nome
+        self.latitude = latitude
+        self.longitude = longitude
+        self._historico: list[LeituraSensor] = []
+
+    @abstractmethod
+    def coletar_leitura(self) -> LeituraSensor:
+        """Cada subclasse decide o que e como medir."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def tipo(self) -> str:
+        """Também abstrato: força a subclasse a se identificar."""
+        raise NotImplementedError</code></pre>
+      </div>
+      <p>Tentar rodar <code class="inline">EstacaoMonitoramento("x", 0, 0)</code> direto falha com <code class="inline">TypeError: Can't instantiate abstract class</code> — Python não deixa passar.</p>
+    </section>
+
+    <section class="pillar">
+      <h3 class="pillar-title"><span class="pillar-num">2</span> Encapsulamento</h3>
+      <p>Uso duas formas de encapsulamento no mesmo arquivo. A primeira é convenção: <code class="inline">self._historico</code> com um underscore avisa "isto é implementação interna". A segunda é validação de verdade, via <code class="inline">@property</code>: uma <code class="inline">BoiaOceanografica</code> simplesmente não consegue existir com profundidade de ancoragem negativa — o erro acontece na hora da atribuição, não trinta linhas depois, quando alguém tenta calcular alguma coisa com um número impossível.</p>
+      <div class="snippet">
+        <div class="snippet-label">monitoramento_oceanografico.py</div>
+        <pre><code class="language-python">@property
+def profundidade_ancoragem(self) -> float:
+    return self._profundidade_ancoragem
+
+@profundidade_ancoragem.setter
+def profundidade_ancoragem(self, valor: float) -> None:
+    # Impossível criar uma boia com profundidade negativa, mesmo por engano.
+    if valor <= 0:
+        raise ValueError("profundidade_ancoragem deve ser positiva")
+    self._profundidade_ancoragem = valor</code></pre>
+      </div>
+      <div class="snippet">
+        <div class="snippet-label">console</div>
+        <pre class="terminal"><code><span class="prompt">&gt;&gt;&gt; </span>BoiaOceanografica("Boia-X", 0, 0, profundidade_ancoragem=-50)
+ValueError: profundidade_ancoragem deve ser positiva</code></pre>
+      </div>
+    </section>
+
+    <section class="pillar">
+      <h3 class="pillar-title"><span class="pillar-num">3</span> Herança</h3>
+      <p><code class="inline">BoiaOceanografica</code>, <code class="inline">EstacaoCosteira</code> e <code class="inline">EstacaoSubmersa</code> herdam de <code class="inline">EstacaoMonitoramento</code> e reaproveitam <code class="inline">__init__</code>, <code class="inline">status()</code>, <code class="inline">total_leituras</code> e <code class="inline">metros_para_pes()</code> de graça. Cada uma só implementa o que é de fato específico dela.</p>
+      <div class="snippet">
+        <div class="snippet-label">monitoramento_oceanografico.py</div>
+        <pre><code class="language-python">class BoiaOceanografica(EstacaoMonitoramento):
+    """Boia fundeada que mede temperatura da superfície do mar."""
+
+    def __init__(
+        self, nome, latitude, longitude, profundidade_ancoragem
+    ) -> None:
+        super().__init__(nome, latitude, longitude)
+        self.profundidade_ancoragem = profundidade_ancoragem
+
+    @property
+    def tipo(self) -> str:
+        return "Boia Oceanográfica"
+
+    def coletar_leitura(self) -> LeituraSensor:
+        temperatura = 27.5 - (self.profundidade_ancoragem / 1000)
+        return LeituraSensor(grandeza="Temperatura da superfície", valor=temperatura, unidade="°C")</code></pre>
+      </div>
+      <p>Repare que <code class="inline">status()</code> — herdado, nunca reescrito — já usa polimorfismo: ele chama <code class="inline">self.coletar_leitura()</code> sem saber qual subclasse está por trás.</p>
+    </section>
+
+    <section class="pillar">
+      <h3 class="pillar-title"><span class="pillar-num">4</span> Polimorfismo (e a peculiaridade que eu mais gostei: duck typing)</h3>
+      <p><code class="inline">RedeDeMonitoramento.coletar_todas()</code> não sabe — e não precisa saber — se está lidando com uma boia, uma estação submersa ou um sensor cidadão-cientista. Ela só chama <code class="inline">.coletar_leitura()</code> e <code class="inline">.tipo</code>, e confia que cada objeto sabe se virar. Isso é polimorfismo clássico para as três subclasses.</p>
+      <p>Mas o <code class="inline">SensorCidadaoCientista</code> é o mais interessante dos quatro: ele <strong>nem herda</strong> de <code class="inline">EstacaoMonitoramento</code>. Ele só tem os atributos e métodos certos — e isso basta.</p>
+
+      <blockquote class="pull">"Se anda como pato e grasna como pato, é um pato."<cite>— a peculiaridade Python conhecida como duck typing</cite></blockquote>
+
+      <div class="snippet">
+        <div class="snippet-label">monitoramento_oceanografico.py</div>
+        <pre><code class="language-python">class SensorCidadaoCientista:
+    """Sensor amador, mantido por um voluntário — fora da rede oficial."""
+
+    def __init__(self, nome: str) -> None:
+        self.nome = nome
+        self.tipo = "Sensor Cidadão"
+
+    def coletar_leitura(self) -> LeituraSensor:
+        return LeituraSensor(grandeza="Temperatura da superfície", valor=26.8, unidade="°C")</code></pre>
+      </div>
+      <p>É por isso que dá pra plugar um sensor amador numa rede oficial sem tocar em uma linha da hierarquia de classes:</p>
+      <div class="snippet">
+        <div class="snippet-label">monitoramento_oceanografico.py</div>
+        <pre><code class="language-python">def coletar_todas(self) -> list[str]:
+    """Não importa se é uma BoiaOceanografica, uma EstacaoSubmersa ou um
+    SensorCidadaoCientista que nem herda da hierarquia — todos respondem a
+    .coletar_leitura() e .tipo, então o loop funciona igual pra todos."""
+    return [estacao.status() if hasattr(estacao, "status") else
+            f"[{estacao.tipo}] {estacao.nome}: {estacao.coletar_leitura()}"
+            for estacao in self._estacoes]</code></pre>
+      </div>
+    </section>
+
+    <h2 class="section">Peculiaridades do Python que aparecem no caminho</h2>
+    <p>Os quatro pilares valem pra qualquer linguagem orientada a objetos. Mas o código também usa um punhado de idiomas específicos do Python que valem a pena destacar:</p>
+
+    <div class="peculiar-grid">
+      <div class="peculiar-item">
+        <h4>@dataclass</h4>
+        <p>Atalho pythônico pra uma classe que é, essencialmente, um container de dados. Gera <code class="inline">__init__</code>, <code class="inline">__repr__</code> e <code class="inline">__eq__</code> automaticamente a partir dos campos declarados.</p>
+        <pre><code class="language-python">@dataclass
+class LeituraSensor:
+    grandeza: str
+    valor: float
+    unidade: str
+    coletado_em: datetime = field(default_factory=lambda: datetime.now(timezone.utc))</code></pre>
+      </div>
+
+      <div class="peculiar-item">
+        <h4>dunder methods</h4>
+        <p><code class="inline">__repr__</code> e <code class="inline">__eq__</code> na classe base; <code class="inline">__len__</code> e <code class="inline">__iter__</code> em <code class="inline">RedeDeMonitoramento</code> — o que permite <code class="inline">len(rede)</code> e <code class="inline">for estacao in rede:</code> funcionarem como em qualquer coleção nativa do Python.</p>
+        <pre><code class="language-python">def __len__(self) -> int:
+    return len(self._estacoes)
+
+def __iter__(self) -> Iterator:
+    return iter(self._estacoes)</code></pre>
+      </div>
+
+      <div class="peculiar-item">
+        <h4>@classmethod</h4>
+        <p>Construtor alternativo a partir de um dicionário de configuração — padrão comum ao carregar estações de um arquivo JSON/YAML da rede.</p>
+        <pre><code class="language-python">@classmethod
+def from_config(cls, config: dict) -> "EstacaoCosteira":
+    return cls(
+        nome=config["nome"],
+        latitude=config["latitude"],
+        longitude=config["longitude"],
+        altitude=config.get("altitude", 0.0),
+    )</code></pre>
+      </div>
+
+      <div class="peculiar-item">
+        <h4>@staticmethod</h4>
+        <p>Função utilitária que pertence à classe por contexto, mas não depende de nenhuma instância específica.</p>
+        <pre><code class="language-python">@staticmethod
+def metros_para_pes(metros: float) -> float:
+    return metros * 3.28084</code></pre>
+      </div>
+    </div>
+
+    <h2 class="section">Rodando de verdade</h2>
+    <p>Sem mocks, sem dados fictícios inventados pro artigo — esta é a saída real de <code class="inline">python src/monitoramento_oceanografico.py</code>:</p>
+    <div class="snippet">
+      <div class="snippet-label">terminal</div>
+      <pre class="terminal"><code>Rede: Rede PEM-NE (exemplo didático) -- 4 estações
+
+[Boia Oceanográfica] Boia-01: Temperatura da superfície = 27.30 °C
+[Estação Costeira] Costeira-Recife: Velocidade do vento = 12.15 m/s
+[Estação Submersa] Submersa-03: Pressão hidrostática = 86.00 atm
+[Sensor Cidadão] Voluntário-Praia-do-Pina: Temperatura da superfície = 26.80 °C
+
+200 m equivalem a 656.2 pés
+repr da boia: BoiaOceanografica(nome='Boia-Teste')
+Boia-01 == Boia-Teste? False</code></pre>
+    </div>
+    <p>A última linha vale reparar: <code class="inline">Boia-01 == Boia-Teste? False</code> só existe porque eu implementei <code class="inline">__eq__</code> comparando por nome — sem isso, Python compararia identidade de objeto (<code class="inline">is</code>), e duas boias com o mesmo nome nunca seriam "iguais".</p>
+
+    <h2 class="section">Testado, não só demonstrado</h2>
+    <p>O repositório tem uma suíte de 9 testes com <code class="inline">pytest</code> cobrindo, entre outras coisas: que as três subclasses respeitam o contrato da classe abstrata, que a validação de <code class="inline">profundidade_ancoragem</code> realmente barra valores inválidos, que o sensor cidadão-cientista entra na rede mesmo sem herança, e que <code class="inline">len()</code>/<code class="inline">for</code> funcionam via os dunder methods. Não é só "o código roda" — é "o design se sustenta".</p>
+
+    <div class="callout">
+      <strong>Pra revisar os artefatos deste estudo</strong>, usei <em>Learning Python</em> (Mark Lutz &amp; David Ascher, 6ª ed., O'Reilly) — especificamente a Parte VI, "Classes and OOP" (capítulos 26 a 32). A referência completa, capítulo por conceito, está no README do repositório.
+    </div>
+
+    <h2 class="section">Para ir além</h2>
+    <ul class="plain">
+      <li><strong>Código completo + testes:</strong> <a href="#">github.com/enatielly/SEU-REPOSITORIO-AQUI</a>.</li>
+      <li><strong>Mapa mental</strong> com os quatro pilares e as peculiaridades do Python, logo abaixo.</li>
+    </ul>
+
+    <figure class="diagram mindmap-figure">
+      <img src="./assets/mapa-mental-poo.png" alt="Mapa mental de Orientação a Objetos em Python: Fundamentos de POO à esquerda (encapsulamento, abstração, herança, polimorfismo) e Peculiaridades em Python à direita (dunder methods, decorators, composição), convergindo para 'Em Python: tudo é objeto', com citação de página do livro Learning Python em cada categoria.">
+      <figcaption>O mapa mental completo do estudo — fundamentos universais de POO à esquerda, peculiaridades específicas do Python à direita, cada categoria ancorada numa página do Learning Python.</figcaption>
+    </figure>
+
+  </div>
+</article>
+
+<footer class="colophon">
+  <div class="wrap">
+    <div class="author-card">
+      <div class="avatar">EG</div>
+      <div>
+        <h4>Enatielly Goes</h4>
+        <p>Doutora em Oceanografia, doutoranda em Ciência da Computação. Pesquisa NLP e modelagem de canal acústico submarino no projeto PEM-NE. Estudando Ciência de Dados na prática, em público.</p>
+        <div class="author-links">
+          <a href="https://www.linkedin.com/in/enatielly-goes/">LinkedIn</a>
+          <a href="https://github.com/enatielly">GitHub</a>
+          <a href="https://enatielly.github.io">enatielly.github.io</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+</body>
+</html>
