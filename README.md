@@ -138,3 +138,7 @@ casos deste repositório.
 ## Autoria
 
 Enatielly Goes — [linkedin.com/in/enatielly-goes](https://www.linkedin.com/in/enatielly-goes/)
+
+Desenvolvido com apoio de ferramentas de IA (Claude) para revisão de
+código, organização e documentação — decisões de domínio e arquitetura
+são minhas.
